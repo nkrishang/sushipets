@@ -21,6 +21,10 @@ contract PetStore {
 
     Pets pets;
 
+    constructor() {
+        storeManager = msg.sender;
+    }
+
     function setWarehouse(address _warehouse) external {
         require(msg.sender == storeManager, 'Only the store manager can set the warehouse.');
         warehouse = Warehouse(_warehouse);
