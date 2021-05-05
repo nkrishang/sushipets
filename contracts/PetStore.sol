@@ -11,6 +11,9 @@ contract PetStore {
     mapping (string => uint) public alreadyMinted;
     mapping (string => uint) public supplyCap;
 
+    mapping (string => uint) public petPrice;
+    mapping (address => string) public authorized;
+
     struct Pets {
         uint totalPets;
         mapping (uint => string) pet;
@@ -35,11 +38,25 @@ contract PetStore {
 
     function getRandomPet() internal view returns (string memory URI) {
         uint randomIndex = (block.timestamp + block.number) % pets.totalPets;
-        return pets.pet[randomIndex];
+        string memory petURI = pets.pet[randomIndex];
+
+        while (alreadyMinted[petURI] >= supplyCap[petURI]) {
+            randomIndex = (block.timestamp + block.number + randomIndex) % pets.totalPets;
+            petURI = pets.pet[randomIndex];
+        }
+
+        return petURI;
+    }
+
+    function drawPet() public {
+        string memory petURI = getRandomPet();
+        authorized[msg.sender] = petURI;
     }
 
     function buyPet() public payable {
-        string memory petURI = getRandomPet();
+        string memory petURI = authorized[msg.sender];
+        require(supplyCap[petURI] > 0, 'This pet does not exist.');
+
         warehouse.mintPet(msg.sender, petURI);
     }
 }
