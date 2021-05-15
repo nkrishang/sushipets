@@ -33,10 +33,11 @@ contract SushiPetsToken is ERC721PresetMinterPauserAutoId {
     }
 
     /// @notice Mints a token having URI `_URI` to address `_to`.
-    function mintPet(address _to, string calldata _URI) external payable {
+    function mintPet(address _to, string calldata _URI) external payable returns (uint tokenId) {
         hasRole(MINTER_ROLE, _msgSender());
 
-        pets[totalPetsMinted] = _URI;
+        tokenId = totalPetsMinted;
+        pets[tokenId] = _URI;
         totalPetsMinted += 1;
 
         mint(_to);
